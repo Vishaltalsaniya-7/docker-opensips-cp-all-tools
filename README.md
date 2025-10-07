@@ -7,8 +7,9 @@ This repository provides a **Docker environment** for developers to work with **
 Clone the Repository and start the containers:
 
 ```bash
-git clone https://github.com/OpenSIPS/docker-opensips-cp-all-tools.git
+git clone https://github.com/OpenSIPS/docker-opensips-cp-all-tools.git 
 cd docker-opensips-cp-all-tools
+git checkout patch-branch
 docker compose up --build -d
 ```
 
