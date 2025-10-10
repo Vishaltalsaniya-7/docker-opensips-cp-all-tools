@@ -28,8 +28,11 @@ services:
     ports:
       - "192.168.1.246:5062:5062/udp"  
       - "192.168.1.246:5062:5062/tcp"
-    expose:
-      - 9060/tcp
+      # - "8888:8888/tcp"  # Expose MI HTTP port to localhost
+      # - "2812:2812/tcp"       # MI TCP
+
+    # expose:
+    #   - "8888/tcp"
     env_file:
       - .env
     depends_on:
@@ -43,9 +46,9 @@ services:
 
   control-panel:
     build: 
-       context: ./etc/opensips-cp/image
+       context: ./etc/opensips-cp
       # dockerfile_inline: FROM opensips/opensips-cp:latest
-       dockerfile: Dockerfile.cp
+       dockerfile: Dockerfile
     container_name: opensips-cp
     env_file:
       - .env
@@ -54,10 +57,14 @@ services:
         condition: service_healthy
     ports:
       - 81:80
-    expose:
-      - 9060/tcp
+    # expose:
+    #   - 8888/tcp
     volumes:
       - ./etc/opensips-cp/docker-entrypoint.d:/docker-entrypoint.d
+      - ./etc/config/boxes.global.inc.php:/var/www/html/opensips-cp/config/boxes.global.inc.php
+      # - ./etc/opensips-cp/image/modules.inc.php:/var/www/html/opensips-cp/config/modules.inc.php
+    #   - ./etc/opensips-cp/opensips-cp.conf:/etc/apache2/sites-available/opensips-cp.conf
+      
     networks:
       local_network:
         ipv4_address: ${CP_IP}

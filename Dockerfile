@@ -43,3 +43,11 @@ ENV OPENSIPS_EXTRA_MODULES="mi_http mi_fifo"
 # cd /usr/local/src/opensips-cli && \
 # pip3 install . && \
 # cd / 
+
+# Create directory for configs
+RUN mkdir -p /usr/local/etc/opensips
+
+# Set working directory
+WORKDIR /usr/local/etc/opensips
+
+CMD ["opensips", "-F", "-f", "/usr/local/etc/opensips/opensips.cfg"]
