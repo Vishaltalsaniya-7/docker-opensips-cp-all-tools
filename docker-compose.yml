@@ -62,7 +62,8 @@ services:
     volumes:
       - ./etc/opensips-cp/docker-entrypoint.d:/docker-entrypoint.d
       - ./etc/config/boxes.global.inc.php:/var/www/html/opensips-cp/config/boxes.global.inc.php
-      # - ./etc/opensips-cp/image/modules.inc.php:/var/www/html/opensips-cp/config/modules.inc.php
+      # - ./etc/config/db.inc.php:/var/www/html/opensips-cp/config/tools/system/dispatcher/db.inc.php
+      - ./etc/opensips-cp/image/modules.inc.php:/var/www/html/opensips-cp/config/modules.inc.php
     #   - ./etc/opensips-cp/opensips-cp.conf:/etc/apache2/sites-available/opensips-cp.conf
       
     networks:
@@ -105,7 +106,6 @@ services:
 
 volumes:
   mysql_data:
-  opensips_fifo:
 
 networks:
   local_network:

@@ -29,6 +29,7 @@ RUN apt-get update && apt-get install -y \
  opensips-auth-modules\ 
  opensips-mysql-module\
  opensips-http-modules \
+ opensips-dialplan-module\
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
@@ -45,9 +46,9 @@ ENV OPENSIPS_EXTRA_MODULES="mi_http mi_fifo"
 # cd / 
 
 # Create directory for configs
-RUN mkdir -p /usr/local/etc/opensips
+# RUN mkdir -p /usr/local/etc/opensips
 
 # Set working directory
-WORKDIR /usr/local/etc/opensips
+# WORKDIR /usr/local/etc/opensips
 
-CMD ["opensips", "-F", "-f", "/usr/local/etc/opensips/opensips.cfg"]
+CMD ["opensips", "-F", "-f", "etc/opensips/opensips.cfg"]
