@@ -1,3 +1,7 @@
+test load balancer :  sipp 192.168.1.246:5062 -s 1000 -l 10 -r 2
+
+
+
 
 id|setid|destination           |socket                |state|probe_mode|weight|priority|attrs|description       |
 --+-----+----------------------+----------------------+-----+----------+------+--------+-----+------------------+
