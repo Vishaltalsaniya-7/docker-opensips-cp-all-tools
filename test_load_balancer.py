@@ -17,13 +17,13 @@ for i in range(1010):
 
     message = (
         f"INVITE sip:500{i}@{server_ip}:{server_port} SIP/2.0\r\n"
-        f"Via: SIP/2.0/UDP 192.168.1.100:5060;branch={branch}\r\n"
+        f"Via: SIP/2.0/UDP 192.168.1.246:5060;branch={branch}\r\n"
         f"From: <sip:caller@domain>;tag={from_tag}\r\n"
         f"To: <sip:callee@domain>\r\n"
         f"Call-ID: {call_id}\r\n"
         f"CSeq: 1 INVITE\r\n"
         f"Max-Forwards: 70\r\n"
-        f"Contact: <sip:caller@192.168.1.100:5060>\r\n"
+        f"Contact: <sip:caller@192.168.1.246:5060>\r\n"
         f"Content-Length: 0\r\n"
         f"\r\n"
     )

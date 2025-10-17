@@ -28,7 +28,7 @@ services:
     ports:
       - "192.168.1.246:5062:5062/udp"  
       - "192.168.1.246:5062:5062/tcp"
-      # - "8888:8888/tcp"  # Expose MI HTTP port to localhost
+      - "8888:8888/tcp"  # Expose MI HTTP port to localhost
       # - "2812:2812/tcp"       # MI TCP
 
     # expose:
