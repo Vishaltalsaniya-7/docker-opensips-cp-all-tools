@@ -18,21 +18,25 @@ services:
     networks:
       local_network:
         ipv4_address: ${MYSQL_IP}
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'     
+          memory: 2G       
+        reservations:
+          cpus: '0.5'     
+          memory: 512M     
+    restart: unless-stopped
 
   opensips:
     build: .
-    # image: opensips/opensips:3.3
     container_name: opensips-3.3
     volumes:
       - ./etc/opensips:/etc/opensips
     ports:
       - "192.168.1.246:5062:5062/udp"  
       - "192.168.1.246:5062:5062/tcp"
-      - "8888:8888/tcp"  # Expose MI HTTP port to localhost
-      # - "2812:2812/tcp"       # MI TCP
-
-    # expose:
-    #   - "8888/tcp"
+      - "8888:8888/tcp"
     env_file:
       - .env
     depends_on:
@@ -43,11 +47,19 @@ services:
     networks:
       local_network:
         ipv4_address: ${OPENSIPS_IP}
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'     
+          memory: 1G       
+        reservations:
+          cpus: '0.25'     
+          memory: 256M    
+    restart: unless-stopped
 
   control-panel:
     build: 
        context: ./etc/opensips-cp
-      # dockerfile_inline: FROM opensips/opensips-cp:latest
        dockerfile: Dockerfile
     container_name: opensips-cp
     env_file:
@@ -57,27 +69,31 @@ services:
         condition: service_healthy
     ports:
       - 81:80
-    # expose:
-    #   - 8888/tcp
     volumes:
       - ./etc/opensips-cp/docker-entrypoint.d:/docker-entrypoint.d
       - ./etc/config/boxes.global.inc.php:/var/www/html/opensips-cp/config/boxes.global.inc.php
-      # - ./etc/config/db.inc.php:/var/www/html/opensips-cp/config/tools/system/dispatcher/db.inc.php
       - ./etc/opensips-cp/image/modules.inc.php:/var/www/html/opensips-cp/config/modules.inc.php
-    #   - ./etc/opensips-cp/opensips-cp.conf:/etc/apache2/sites-available/opensips-cp.conf
-      
     networks:
       local_network:
         ipv4_address: ${CP_IP}
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'      
+          memory: 512M    
+        reservations:
+          cpus: '0.25'     
+          memory: 128M     
+    restart: unless-stopped
+
   rtpengine:
     image: drachtio/rtpengine
     container_name: rtpengine-cp
     environment:
-      # - LOCAL_IP=${RTPENGINE_IP}
-        - RTPENGINE_PUBLIC_IP=${HOST_IP}  # Your host/LAN IP
+        - RTPENGINE_PUBLIC_IP=${HOST_IP}
     ports:
-    - "22222:22222/udp"             # UDP control port
-    - "23000-23100:23000-23100/udp" # RTP media ports
+    - "22222:22222/udp"
+    - "23000-23100:23000-23100/udp"
     command: [
     "rtpengine", 
     "--foreground", 
@@ -94,7 +110,7 @@ services:
     "--recording-dir=/tmp",
     "--recording-method=pcap",
     "--recording-format=eth"
-  ]
+    ]
     ulimits:
       nproc: 1024
       nofile:
@@ -103,6 +119,15 @@ services:
     networks:
       local_network:
         ipv4_address: ${RTPENGINE_IP}
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'     
+          memory: 1G      
+        reservations:
+          cpus: '0.5'     
+          memory: 256M     
+    restart: unless-stopped
 
 volumes:
   mysql_data:
@@ -112,3 +137,118 @@ networks:
     ipam:
       config:
         - subnet: ${NETWORK}
+
+# services:
+#   mysql:
+#     image: mysql
+#     container_name: mysql
+#     volumes:
+#       - ./etc/mysql:/docker-entrypoint-initdb.d
+#       - mysql_data:/var/lib/mysql
+#     ports:
+#         - "3308:3306"
+#     env_file:
+#       - .env
+#     healthcheck:
+#       test: mysql -u ${MYSQL_USER} -p'${MYSQL_PASSWORD}' opensips -e 'SHOW TABLES LIKE "location"' 2>&1 | grep -q location
+#       interval: 10s
+#       timeout: 1s
+#       retries: 5
+#       start_period: 20s
+#     networks:
+#       local_network:
+#         ipv4_address: ${MYSQL_IP}
+
+#   opensips:
+#     build: .
+#     # image: opensips/opensips:3.3
+#     container_name: opensips-3.3
+#     volumes:
+#       - ./etc/opensips:/etc/opensips
+#     ports:
+#       - "192.168.1.246:5062:5062/udp"  
+#       - "192.168.1.246:5062:5062/tcp"
+#       - "8888:8888/tcp"  # Expose MI HTTP port to localhost
+#       # - "2812:2812/tcp"       # MI TCP
+
+#     # expose:
+#     #   - "8888/tcp"
+#     env_file:
+#       - .env
+#     depends_on:
+#       mysql:
+#         condition: service_healthy
+#     command:
+#       - -p /etc/opensips/substenv.sh
+#     networks:
+#       local_network:
+#         ipv4_address: ${OPENSIPS_IP}
+
+#   control-panel:
+#     build: 
+#        context: ./etc/opensips-cp
+#       # dockerfile_inline: FROM opensips/opensips-cp:latest
+#        dockerfile: Dockerfile
+#     container_name: opensips-cp
+#     env_file:
+#       - .env
+#     depends_on:
+#       mysql:
+#         condition: service_healthy
+#     ports:
+#       - 81:80
+#     # expose:
+#     #   - 8888/tcp
+#     volumes:
+#       - ./etc/opensips-cp/docker-entrypoint.d:/docker-entrypoint.d
+#       - ./etc/config/boxes.global.inc.php:/var/www/html/opensips-cp/config/boxes.global.inc.php
+#       # - ./etc/config/db.inc.php:/var/www/html/opensips-cp/config/tools/system/dispatcher/db.inc.php
+#       - ./etc/opensips-cp/image/modules.inc.php:/var/www/html/opensips-cp/config/modules.inc.php
+#     #   - ./etc/opensips-cp/opensips-cp.conf:/etc/apache2/sites-available/opensips-cp.conf
+      
+#     networks:
+#       local_network:
+#         ipv4_address: ${CP_IP}
+#   rtpengine:
+#     image: drachtio/rtpengine
+#     container_name: rtpengine-cp
+#     environment:
+#       # - LOCAL_IP=${RTPENGINE_IP}
+#         - RTPENGINE_PUBLIC_IP=${HOST_IP}  # Your host/LAN IP
+#     ports:
+#     - "22222:22222/udp"             # UDP control port
+#     - "23000-23100:23000-23100/udp" # RTP media ports
+#     command: [
+#     "rtpengine", 
+#     "--foreground", 
+#     "--log-stderr",
+#     "--interface=172.72.0.6!192.168.1.246",
+#     "--listen-udp=0.0.0.0:22222",
+#     "--port-min=23000",
+#     "--port-max=23100",
+#     "--log-level=7",
+#     "--delete-delay=0",
+#     "--timeout=60",
+#     "--silent-timeout=3600",
+#     "--tos=184",
+#     "--recording-dir=/tmp",
+#     "--recording-method=pcap",
+#     "--recording-format=eth"
+#   ]
+#     ulimits:
+#       nproc: 1024
+#       nofile:
+#         soft: 4096
+#         hard: 8192
+#     networks:
+#       local_network:
+#         ipv4_address: ${RTPENGINE_IP}
+
+# volumes:
+#   mysql_data:
+
+# networks:
+#   local_network:
+#     ipam:
+#       config:
+#         - subnet: ${NETWORK}
